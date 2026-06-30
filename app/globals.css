@@ -1,0 +1,39 @@
+@import "tailwindcss";
+
+:root {
+  --is-gold:      #F5B800;
+  --is-gold-dark: #D4970A;
+  --is-dark:      #1A1A1A;
+  --is-dark-2:    #242424;
+  --is-white:     #FFFFFF;
+  --is-gray:      #F5F5F5;
+  --is-border:    #E8E8E8;
+}
+
+body {
+  font-family: Inter, Arial, Helvetica, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in {
+  animation: fade-in 0.3s ease-out;
+}
+
+@keyframes slide-up {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+.animate-slide-up {
+  animation: slide-up 0.25s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
