@@ -95,6 +95,72 @@ export function OqituvchilarClient({
   }
 
   const today = new Date().toISOString().split('T')[0];
+  const activeTeachers = teachers.filter(t => t.status === 'active');
+  const archivedTeachers = teachers.filter(t => t.status === 'inactive');
+
+  function TeacherTable({ list, archived }: { list: Teacher[]; archived?: boolean }) {
+    if (list.length === 0) return (
+      <p className="p-8 text-center text-gray-400 text-sm">
+        {archived ? 'Arxivda xodimlar yo\'q' : 'Xodimlar yo\'q'}
+      </p>
+    );
+    return (
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm min-w-[500px]">
+          <thead>
+            <tr className="border-b border-gray-100">
+              {["Ism", "Guruhlar", ""].map(h => (
+                <th key={h} className="text-left px-5 py-3 text-[10px] font-semibold text-gray-400 uppercase tracking-widest">{h}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {list.map(t => {
+              const tGroupIds = getTeacherGroups(t.id);
+              return (
+                <tr key={t.id} className="border-b border-gray-50 hover:bg-gray-50 transition-colors">
+                  <td className="px-5 py-3 font-medium text-[#1A1A1A]">{t.full_name}</td>
+                  <td className="px-5 py-3">
+                    {tGroupIds.length === 0 ? (
+                      <span className="text-gray-400 text-xs">Guruh yo&apos;q</span>
+                    ) : (
+                      <div className="flex flex-wrap gap-1">
+                        {tGroupIds.map(gid => (
+                          <span key={gid} className="inline-flex px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-700">
+                            {groupMap[gid] ?? `#${gid}`}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </td>
+                  <td className="px-5 py-3">
+                    <div className="flex gap-3 justify-end">
+                      {!archived && (
+                        <>
+                          <button onClick={() => setAssignTeacher(t)} className="text-xs text-blue-500 hover:text-blue-700 transition-colors">Guruhlar</button>
+                          <button onClick={() => setEditTeacher(t)} className="text-xs text-gray-400 hover:text-[#F5B800] transition-colors">Tahrirlash</button>
+                          <button onClick={() => handleResetPin(t.id, t.full_name)} className="text-xs text-gray-400 hover:text-amber-600 transition-colors">PIN</button>
+                          <button onClick={() => handleToggleStatus(t)} disabled={isPending} className="text-xs text-gray-400 hover:text-orange-500 transition-colors">
+                            Arxivga
+                          </button>
+                        </>
+                      )}
+                      {archived && (
+                        <button onClick={() => handleToggleStatus(t)} disabled={isPending} className="text-xs text-green-600 hover:text-green-800 transition-colors">
+                          Faollashtirish
+                        </button>
+                      )}
+                      <button onClick={() => handleDelete(t.id)} className="text-xs text-gray-400 hover:text-red-600 transition-colors">O&apos;chirish</button>
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -114,61 +180,17 @@ export function OqituvchilarClient({
       </div>
 
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-        {teachers.length === 0 ? (
-          <p className="p-8 text-center text-gray-400 text-sm">O&apos;qituvchilar yo&apos;q</p>
-        ) : (
-          <div className="overflow-x-auto">
-          <table className="w-full text-sm min-w-[500px]">
-            <thead>
-              <tr className="border-b border-gray-100">
-                {["Ism", "Holat", "Guruhlar", ""].map(h => (
-                  <th key={h} className="text-left px-5 py-3 text-[10px] font-semibold text-gray-400 uppercase tracking-widest">{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {teachers.map(t => {
-                const tGroupIds = getTeacherGroups(t.id);
-                return (
-                  <tr key={t.id} className={`border-b border-gray-50 transition-colors ${t.status === 'inactive' ? 'opacity-50' : 'hover:bg-gray-50'}`}>
-                    <td className="px-5 py-3 font-medium text-[#1A1A1A]">{t.full_name}</td>
-                    <td className="px-5 py-3">
-                      <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${t.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
-                        {t.status === 'active' ? 'Faol' : 'Faolsiz'}
-                      </span>
-                    </td>
-                    <td className="px-5 py-3">
-                      {tGroupIds.length === 0 ? (
-                        <span className="text-gray-400 text-xs">Guruh yo&apos;q</span>
-                      ) : (
-                        <div className="flex flex-wrap gap-1">
-                          {tGroupIds.map(gid => (
-                            <span key={gid} className="inline-flex px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-700">
-                              {groupMap[gid] ?? `#${gid}`}
-                            </span>
-                          ))}
-                        </div>
-                      )}
-                    </td>
-                    <td className="px-5 py-3">
-                      <div className="flex gap-3 justify-end">
-                        <button onClick={() => setAssignTeacher(t)} className="text-xs text-blue-500 hover:text-blue-700 transition-colors">Guruhlar</button>
-                        <button onClick={() => setEditTeacher(t)} className="text-xs text-gray-400 hover:text-[#F5B800] transition-colors">Tahrirlash</button>
-                        <button onClick={() => handleResetPin(t.id, t.full_name)} className="text-xs text-gray-400 hover:text-amber-600 transition-colors">PIN</button>
-                        <button onClick={() => handleToggleStatus(t)} disabled={isPending} className={`text-xs transition-colors ${t.status === 'active' ? 'text-gray-400 hover:text-orange-500' : 'text-orange-500 hover:text-green-600'}`}>
-                          {t.status === 'active' ? 'Faolsizlashtirish' : 'Faollashtirish'}
-                        </button>
-                        <button onClick={() => handleDelete(t.id)} className="text-xs text-gray-400 hover:text-red-600 transition-colors">O&apos;chirish</button>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-          </div>
-        )}
+        <TeacherTable list={activeTeachers} />
       </div>
+
+      {archivedTeachers.length > 0 && (
+        <div className="mt-8">
+          <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-3">Arxiv</p>
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden opacity-70">
+            <TeacherTable list={archivedTeachers} archived />
+          </div>
+        </div>
+      )}
 
       {/* Coverage list */}
       {coverage.length > 0 && (
