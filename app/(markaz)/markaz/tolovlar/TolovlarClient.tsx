@@ -1,6 +1,7 @@
 ﻿'use client';
 import { useState, useTransition } from 'react';
 import { createPayment, updatePaymentStatus, deletePayment } from './actions';
+import { Select } from '@/components/shared/Select';
 
 type Student = { id: number; full_name: string };
 type Payment = {
@@ -61,13 +62,17 @@ export function TolovlarClient({ payments, students }: { payments: Payment[]; st
 
       {/* Toolbar */}
       <div className="flex gap-3 mb-5 flex-wrap">
-        <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)}
-          className="px-4 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-[#F5B800]">
-          <option value="">Barcha holatlar</option>
-          <option value="paid">To&apos;langan</option>
-          <option value="pending">Kutilmoqda</option>
-          <option value="overdue">Muddati o&apos;tgan</option>
-        </select>
+        <Select
+          className="w-48"
+          value={filterStatus}
+          onChange={setFilterStatus}
+          placeholder="Barcha holatlar"
+          options={[
+            { value: 'paid', label: "To'langan" },
+            { value: 'pending', label: 'Kutilmoqda' },
+            { value: 'overdue', label: "Muddati o'tgan" },
+          ]}
+        />
         <button onClick={() => setShowAdd(true)}
           className="ml-auto px-5 py-2 rounded-xl bg-[#F5B800] text-[#1A1A1A] text-sm font-semibold hover:bg-[#D4970A] transition-colors">
           + To&apos;lov qo&apos;shish
@@ -126,10 +131,8 @@ export function TolovlarClient({ payments, students }: { payments: Payment[]; st
             <form onSubmit={handleCreate} className="space-y-4">
               <div>
                 <label className="block text-xs font-medium text-gray-500 mb-1">O&apos;quvchi</label>
-                <select name="student_id" required className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-[#F5B800]">
-                  <option value="">Tanlang...</option>
-                  {students.map(s => <option key={s.id} value={s.id}>{s.full_name}</option>)}
-                </select>
+                <Select name="student_id" required placeholder="Tanlang..."
+                  options={students.map(s => ({ value: String(s.id), label: s.full_name }))} />
               </div>
               <div>
                 <label className="block text-xs font-medium text-gray-500 mb-1">Oy</label>
@@ -145,20 +148,21 @@ export function TolovlarClient({ payments, students }: { payments: Payment[]; st
               </div>
               <div>
                 <label className="block text-xs font-medium text-gray-500 mb-1">Holat</label>
-                <select name="status" defaultValue="pending" className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-[#F5B800]">
-                  <option value="pending">Kutilmoqda</option>
-                  <option value="paid">To&apos;langan</option>
-                  <option value="overdue">Muddati o&apos;tgan</option>
-                </select>
+                <Select name="status" required defaultValue="pending"
+                  options={[
+                    { value: 'pending', label: 'Kutilmoqda' },
+                    { value: 'paid', label: "To'langan" },
+                    { value: 'overdue', label: "Muddati o'tgan" },
+                  ]} />
               </div>
               <div>
                 <label className="block text-xs font-medium text-gray-500 mb-1">To&apos;lov usuli</label>
-                <select name="payment_method" className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-[#F5B800]">
-                  <option value="">Tanlang</option>
-                  <option value="cash">Naqd</option>
-                  <option value="card">Karta</option>
-                  <option value="transfer">O&apos;tkazma</option>
-                </select>
+                <Select name="payment_method" placeholder="Tanlang"
+                  options={[
+                    { value: 'cash', label: 'Naqd' },
+                    { value: 'card', label: 'Karta' },
+                    { value: 'transfer', label: "O'tkazma" },
+                  ]} />
               </div>
               <div>
                 <label className="block text-xs font-medium text-gray-500 mb-1">Izoh</label>

@@ -1,6 +1,7 @@
 ﻿'use client';
 import { useState, useTransition } from 'react';
 import { createTeacher, updateTeacher, deleteTeacher, updateTeacherGroups, resetTeacherPin, createLessonCoverage, deleteLessonCoverage, setTeacherStatus } from './actions';
+import { Select } from '@/components/shared/Select';
 
 type Teacher = { id: number; full_name: string; status: string; created_at: string };
 type Group = { id: number; name: string };
@@ -256,21 +257,13 @@ export function OqituvchilarClient({
           <form onSubmit={handleCreateCoverage} className="space-y-4">
             <div>
               <label className="block text-xs font-medium text-gray-500 mb-1">Guruh</label>
-              <select name="group_id" required className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-[#F5B800]">
-                <option value="">— tanlang —</option>
-                {groups.map(g => (
-                  <option key={g.id} value={g.id}>{g.name}</option>
-                ))}
-              </select>
+              <Select name="group_id" required placeholder="— tanlang —"
+                options={groups.map(g => ({ value: String(g.id), label: g.name }))} />
             </div>
             <div>
               <label className="block text-xs font-medium text-gray-500 mb-1">O&apos;rinbosar o&apos;qituvchi</label>
-              <select name="teacher_id" required className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-[#F5B800]">
-                <option value="">— tanlang —</option>
-                {teachers.map(t => (
-                  <option key={t.id} value={t.id}>{t.full_name}</option>
-                ))}
-              </select>
+              <Select name="teacher_id" required placeholder="— tanlang —"
+                options={teachers.map(t => ({ value: String(t.id), label: t.full_name }))} />
             </div>
             <div>
               <label className="block text-xs font-medium text-gray-500 mb-1">Sana</label>

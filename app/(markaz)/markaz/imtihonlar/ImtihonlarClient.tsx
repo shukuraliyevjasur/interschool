@@ -2,6 +2,7 @@
 import { useRouter } from 'next/navigation';
 import { useState, useTransition } from 'react';
 import { createExam, deleteExam, saveExamResults } from './actions';
+import { Select } from '@/components/shared/Select';
 
 type Group = { id: number; name: string };
 type Exam = { id: number; title: string; exam_date: string; max_score: number; group_id: number; groups: { name: string } | null };
@@ -124,10 +125,8 @@ export function ImtihonlarClient({
             <form onSubmit={handleCreate} className="space-y-4">
               <div>
                 <label className="block text-xs font-medium text-gray-500 mb-1">Guruh</label>
-                <select name="group_id" required className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-[#F5B800]">
-                  <option value="">Tanlang...</option>
-                  {groups.map(g => <option key={g.id} value={g.id}>{g.name}</option>)}
-                </select>
+                <Select name="group_id" required placeholder="Tanlang..."
+                  options={groups.map(g => ({ value: String(g.id), label: g.name }))} />
               </div>
               <div>
                 <label className="block text-xs font-medium text-gray-500 mb-1">Imtihon nomi</label>

@@ -2,6 +2,7 @@
 import { useRouter } from 'next/navigation';
 import { useState, useTransition } from 'react';
 import { submitTeacherAttendance, saveTeacherLessonTopic } from './actions';
+import { Select } from '@/components/shared/Select';
 
 type Group = { id: number; name: string };
 type Student = { id: number; full_name: string };
@@ -48,10 +49,13 @@ export function TeacherDavomatClient({
   return (
     <div className="space-y-5">
       <div className="flex gap-3 flex-wrap">
-        <select value={selectedGroupId ?? ''} onChange={e => navigate(Number(e.target.value))}
-          className="px-4 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-[#F5B800]">
-          {groups.map(g => <option key={g.id} value={g.id}>{g.name}</option>)}
-        </select>
+        <Select
+          className="w-56"
+          value={selectedGroupId !== null ? String(selectedGroupId) : ''}
+          onChange={val => { if (val) navigate(Number(val)); }}
+          placeholder="Guruh tanlang"
+          options={groups.map(g => ({ value: String(g.id), label: g.name }))}
+        />
         <input type="date" value={selectedDate} onChange={e => navigate(undefined, e.target.value)}
           className="px-4 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-[#F5B800]" />
         {students.length > 0 && (

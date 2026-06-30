@@ -1,6 +1,7 @@
 'use client';
 import { useState, useTransition } from 'react';
 import { createStudent, updateStudent, deleteStudent, regenerateStudentCode, regenerateParentCode } from './actions';
+import { Select } from '@/components/shared/Select';
 
 type Group = { id: number; name: string };
 type Student = {
@@ -81,14 +82,13 @@ export function OquvchilarClient({ students, groups, parentCodeMap }: { students
           value={search}
           onChange={e => setSearch(e.target.value)}
         />
-        <select
-          className="px-4 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-[#F5B800]"
+        <Select
+          className="w-52"
           value={filterGroup}
-          onChange={e => setFilterGroup(e.target.value)}
-        >
-          <option value="">Barcha guruhlar</option>
-          {groups.map(g => <option key={g.id} value={String(g.id)}>{g.name}</option>)}
-        </select>
+          onChange={setFilterGroup}
+          placeholder="Barcha guruhlar"
+          options={groups.map(g => ({ value: String(g.id), label: g.name }))}
+        />
         <button
           onClick={() => setShowAdd(true)}
           className="px-5 py-2 rounded-xl bg-[#F5B800] text-[#1A1A1A] text-sm font-semibold hover:bg-[#D4970A] transition-colors"
@@ -152,10 +152,8 @@ export function OquvchilarClient({ students, groups, parentCodeMap }: { students
             <Field label="Ota-ona telefoni" name="parent_phone" type="tel" />
             <div>
               <label className="block text-xs font-medium text-gray-500 mb-1">Guruh</label>
-              <select name="group_id" className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-[#F5B800]">
-                <option value="">Guruhsiz</option>
-                {groups.map(g => <option key={g.id} value={g.id}>{g.name}</option>)}
-              </select>
+              <Select name="group_id" placeholder="Guruhsiz"
+                options={groups.map(g => ({ value: String(g.id), label: g.name }))} />
             </div>
             <SubmitBtn pending={isPending} label="Saqlash" />
           </form>
@@ -169,17 +167,14 @@ export function OquvchilarClient({ students, groups, parentCodeMap }: { students
             <Field label="To'liq ism" name="full_name" defaultValue={editStudent.full_name} required />
             <div>
               <label className="block text-xs font-medium text-gray-500 mb-1">Guruh</label>
-              <select name="group_id" defaultValue={editStudent.group_id ?? ''} className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-[#F5B800]">
-                <option value="">Guruhsiz</option>
-                {groups.map(g => <option key={g.id} value={g.id}>{g.name}</option>)}
-              </select>
+              <Select name="group_id" placeholder="Guruhsiz"
+                defaultValue={editStudent.group_id ? String(editStudent.group_id) : ''}
+                options={groups.map(g => ({ value: String(g.id), label: g.name }))} />
             </div>
             <div>
               <label className="block text-xs font-medium text-gray-500 mb-1">Holat</label>
-              <select name="status" defaultValue={editStudent.status} className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-[#F5B800]">
-                <option value="active">Faol</option>
-                <option value="inactive">Arxiv</option>
-              </select>
+              <Select name="status" required defaultValue={editStudent.status}
+                options={[{ value: 'active', label: 'Faol' }, { value: 'inactive', label: 'Arxiv' }]} />
             </div>
             <div className="bg-gray-50 rounded-xl p-3 space-y-2">
               <div className="flex items-center justify-between">

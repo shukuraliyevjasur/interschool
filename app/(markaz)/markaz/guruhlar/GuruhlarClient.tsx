@@ -1,6 +1,7 @@
 ﻿'use client';
 import { useState, useTransition } from 'react';
 import { createGroup, updateGroup, deleteGroup, moveStudentToGroup } from './actions';
+import { Select } from '@/components/shared/Select';
 
 type Group = {
   id: number; name: string; teacher_name: string | null; teacher_id: number | null;
@@ -57,19 +58,17 @@ export function GuruhlarClient({
         >
           + Guruh qo&apos;shish
         </button>
-        <select
-          className="flex-1 min-w-[200px] px-4 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-[#F5B800]"
-          onChange={e => {
-            const id = Number(e.target.value);
-            if (!id) return;
-            const s = students.find(st => st.id === id);
+        <Select
+          className="flex-1 min-w-[200px]"
+          value=""
+          onChange={val => {
+            if (!val) return;
+            const s = students.find(st => st.id === Number(val));
             if (s) setMoveStudent(s);
-            e.target.value = '';
           }}
-        >
-          <option value="">O&apos;quvchini guruhga ko&apos;chirish...</option>
-          {students.map(s => <option key={s.id} value={s.id}>{s.full_name}</option>)}
-        </select>
+          placeholder="O'quvchini guruhga ko'chirish..."
+          options={students.map(s => ({ value: String(s.id), label: s.full_name }))}
+        />
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
@@ -114,17 +113,13 @@ export function GuruhlarClient({
             <Field label="Guruh nomi" name="name" required />
             <div>
               <label className="block text-xs font-medium text-gray-500 mb-1">Yo&apos;nalish</label>
-              <select name="program_id" required className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-[#F5B800]">
-                <option value="">— tanlang —</option>
-                {programs.map(p => <option key={p.id} value={p.id}>{p.name_uz}</option>)}
-              </select>
+              <Select name="program_id" required placeholder="— tanlang —"
+                options={programs.map(p => ({ value: String(p.id), label: p.name_uz }))} />
             </div>
             <div>
               <label className="block text-xs font-medium text-gray-500 mb-1">O&apos;qituvchi</label>
-              <select name="teacher_id" className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-[#F5B800]">
-                <option value="">Tayinlanmagan</option>
-                {teachers.map(t => <option key={t.id} value={t.id}>{t.full_name}</option>)}
-              </select>
+              <Select name="teacher_id" placeholder="Tayinlanmagan"
+                options={teachers.map(t => ({ value: String(t.id), label: t.full_name }))} />
             </div>
             <Field label="Dars kunlari (vergul bilan)" name="schedule_days" placeholder="Du, Cho, Ju" />
             <Field label="Dars vaqti" name="schedule_time" placeholder="14:00–15:30" />
@@ -140,20 +135,17 @@ export function GuruhlarClient({
             <Field label="Guruh nomi" name="name" defaultValue={editGroup.name} required />
             <div>
               <label className="block text-xs font-medium text-gray-500 mb-1">O&apos;qituvchi</label>
-              <select name="teacher_id" defaultValue={editGroup.teacher_id ?? ''} className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-[#F5B800]">
-                <option value="">Tayinlanmagan</option>
-                {teachers.map(t => <option key={t.id} value={t.id}>{t.full_name}</option>)}
-              </select>
+              <Select name="teacher_id" placeholder="Tayinlanmagan"
+                defaultValue={editGroup.teacher_id ? String(editGroup.teacher_id) : ''}
+                options={teachers.map(t => ({ value: String(t.id), label: t.full_name }))} />
             </div>
             <Field label="Dars kunlari" name="schedule_days" defaultValue={editGroup.schedule_days?.join(', ')} />
             <Field label="Dars vaqti" name="schedule_time" defaultValue={editGroup.schedule_time ?? ''} />
             <Field label="Max o'quvchilar" name="max_students" type="number" defaultValue={String(editGroup.max_students)} />
             <div>
               <label className="block text-xs font-medium text-gray-500 mb-1">Holat</label>
-              <select name="status" defaultValue={editGroup.status} className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-[#F5B800]">
-                <option value="active">Faol</option>
-                <option value="inactive">Arxiv</option>
-              </select>
+              <Select name="status" required defaultValue={editGroup.status}
+                options={[{ value: 'active', label: 'Faol' }, { value: 'inactive', label: 'Arxiv' }]} />
             </div>
             <SubmitBtn pending={isPending} label="Saqlash" />
           </form>
@@ -165,10 +157,9 @@ export function GuruhlarClient({
           <form onSubmit={handleMove} className="space-y-4">
             <div>
               <label className="block text-xs font-medium text-gray-500 mb-1">Guruh tanlang</label>
-              <select name="group_id" defaultValue={moveStudent.group_id ?? ''} className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-[#F5B800]">
-                <option value="">Guruhsiz</option>
-                {groups.map(g => <option key={g.id} value={g.id}>{g.name}</option>)}
-              </select>
+              <Select name="group_id" placeholder="Guruhsiz"
+                defaultValue={moveStudent.group_id ? String(moveStudent.group_id) : ''}
+                options={groups.map(g => ({ value: String(g.id), label: g.name }))} />
             </div>
             <SubmitBtn pending={isPending} label="Ko'chirish" />
           </form>
