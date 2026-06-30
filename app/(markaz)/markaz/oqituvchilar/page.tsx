@@ -7,7 +7,7 @@ export default async function OqituvchilarPage() {
   const today = new Date().toISOString().split('T')[0];
 
   const [teachersRes, groupsRes, assignmentsRes, coverageRes] = await Promise.all([
-    db.from('teachers').select('id, full_name, created_at').order('full_name'),
+    db.from('teachers').select('id, full_name, status, created_at').order('full_name'),
     db.from('groups').select('id, name').eq('status', 'active').order('name'),
     db.from('teacher_groups').select('teacher_id, group_id'),
     db.from('lesson_coverage')
@@ -23,7 +23,7 @@ export default async function OqituvchilarPage() {
         <h1 className="text-2xl font-bold text-[#1A1A1A]">O&apos;qituvchilar</h1>
       </div>
       <OqituvchilarClient
-        teachers={(teachersRes.data ?? []) as { id: number; full_name: string; created_at: string }[]}
+        teachers={(teachersRes.data ?? []) as { id: number; full_name: string; status: string; created_at: string }[]}
         groups={(groupsRes.data ?? []) as { id: number; name: string }[]}
         assignments={(assignmentsRes.data ?? []) as { teacher_id: number; group_id: number }[]}
         coverage={(coverageRes.data ?? []) as { id: number; group_id: number; teacher_id: number; date: string }[]}

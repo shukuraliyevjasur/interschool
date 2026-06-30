@@ -4,14 +4,15 @@ import { GuruhlarClient } from './GuruhlarClient';
 
 export default async function GuruhlarPage() {
   const db = createServerClient();
-  const [{ data: rawGroups }, { data: students }] = await Promise.all([
+  const [{ data: rawGroups }, { data: students }, { data: teachers }, { data: programs }] = await Promise.all([
     db.from('groups')
-      .select('id, name, schedule_days, schedule_time, max_students, status, teacher_groups(teachers(full_name))')
+      .select('id, name, schedule_days, schedule_time, max_students, status, teacher_groups(teacher_id, teachers(full_name))')
       .order('name'),
     db.from('students').select('id, full_name, group_id').eq('status', 'active').order('full_name'),
+    db.from('teachers').select('id, full_name').eq('status', 'active').order('full_name'),
+    db.from('programs').select('id, name_uz').order('name_uz'),
   ]);
 
-  // Derive teacher_name live from the join instead of the cached column
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const groups = (rawGroups ?? []).map((g: any) => ({
     id: g.id as number,
@@ -20,7 +21,8 @@ export default async function GuruhlarPage() {
     schedule_time: g.schedule_time as string | null,
     max_students: g.max_students as number,
     status: g.status as string,
-    teacher_name: (g.teacher_groups as { teachers: { full_name: string } | null }[])[0]?.teachers?.full_name ?? null,
+    teacher_name: (g.teacher_groups as { teacher_id: number; teachers: { full_name: string } | null }[])[0]?.teachers?.full_name ?? null,
+    teacher_id: (g.teacher_groups as { teacher_id: number }[])[0]?.teacher_id ?? null,
   }));
 
   const studentCounts: Record<number, number> = {};
@@ -36,7 +38,13 @@ export default async function GuruhlarPage() {
           <h1 className="text-2xl font-bold text-[#1A1A1A]">Guruhlar</h1>
         </div>
       </div>
-      <GuruhlarClient groups={groups} students={students ?? []} studentCounts={studentCounts} />
+      <GuruhlarClient
+        groups={groups}
+        students={students ?? []}
+        studentCounts={studentCounts}
+        teachers={(teachers ?? []) as { id: number; full_name: string }[]}
+        programs={(programs ?? []) as { id: number; name_uz: string }[]}
+      />
     </div>
   );
 }

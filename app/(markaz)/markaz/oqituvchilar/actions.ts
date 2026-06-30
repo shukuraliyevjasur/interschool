@@ -64,6 +64,12 @@ export async function deleteLessonCoverage(id: number) {
   revalidatePath('/markaz/oqituvchilar');
 }
 
+export async function setTeacherStatus(id: number, status: 'active' | 'inactive') {
+  const db = createServerClient();
+  await db.from('teachers').update({ status }).eq('id', id);
+  revalidatePath('/markaz/oqituvchilar');
+}
+
 export async function updateTeacherGroups(teacherId: number, groupIds: number[]) {
   const db = createServerClient();
   const { data: teacher } = await db.from('teachers').select('full_name').eq('id', teacherId).single();

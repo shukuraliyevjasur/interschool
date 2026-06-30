@@ -1,8 +1,8 @@
 ﻿'use client';
 import { useState, useTransition } from 'react';
-import { createTeacher, updateTeacher, deleteTeacher, updateTeacherGroups, resetTeacherPin, createLessonCoverage, deleteLessonCoverage } from './actions';
+import { createTeacher, updateTeacher, deleteTeacher, updateTeacherGroups, resetTeacherPin, createLessonCoverage, deleteLessonCoverage, setTeacherStatus } from './actions';
 
-type Teacher = { id: number; full_name: string; created_at: string };
+type Teacher = { id: number; full_name: string; status: string; created_at: string };
 type Group = { id: number; name: string };
 type Assignment = { teacher_id: number; group_id: number };
 type Coverage = { id: number; group_id: number; teacher_id: number; date: string };
@@ -62,6 +62,11 @@ export function OqituvchilarClient({
     startTransition(async () => { await deleteTeacher(id); });
   }
 
+  function handleToggleStatus(t: Teacher) {
+    const next = t.status === 'active' ? 'inactive' : 'active';
+    startTransition(async () => { await setTeacherStatus(t.id, next); });
+  }
+
   function handleAssign(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (!assignTeacher) return;
@@ -116,7 +121,7 @@ export function OqituvchilarClient({
           <table className="w-full text-sm min-w-[500px]">
             <thead>
               <tr className="border-b border-gray-100">
-                {["Ism", "Guruhlar", ""].map(h => (
+                {["Ism", "Holat", "Guruhlar", ""].map(h => (
                   <th key={h} className="text-left px-5 py-3 text-[10px] font-semibold text-gray-400 uppercase tracking-widest">{h}</th>
                 ))}
               </tr>
@@ -125,8 +130,13 @@ export function OqituvchilarClient({
               {teachers.map(t => {
                 const tGroupIds = getTeacherGroups(t.id);
                 return (
-                  <tr key={t.id} className="border-b border-gray-50 hover:bg-gray-50 transition-colors">
+                  <tr key={t.id} className={`border-b border-gray-50 transition-colors ${t.status === 'inactive' ? 'opacity-50' : 'hover:bg-gray-50'}`}>
                     <td className="px-5 py-3 font-medium text-[#1A1A1A]">{t.full_name}</td>
+                    <td className="px-5 py-3">
+                      <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${t.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
+                        {t.status === 'active' ? 'Faol' : 'Faolsiz'}
+                      </span>
+                    </td>
                     <td className="px-5 py-3">
                       {tGroupIds.length === 0 ? (
                         <span className="text-gray-400 text-xs">Guruh yo&apos;q</span>
@@ -144,7 +154,10 @@ export function OqituvchilarClient({
                       <div className="flex gap-3 justify-end">
                         <button onClick={() => setAssignTeacher(t)} className="text-xs text-blue-500 hover:text-blue-700 transition-colors">Guruhlar</button>
                         <button onClick={() => setEditTeacher(t)} className="text-xs text-gray-400 hover:text-[#F5B800] transition-colors">Tahrirlash</button>
-                        <button onClick={() => handleResetPin(t.id, t.full_name)} className="text-xs text-gray-400 hover:text-amber-600 transition-colors">PIN yangilash</button>
+                        <button onClick={() => handleResetPin(t.id, t.full_name)} className="text-xs text-gray-400 hover:text-amber-600 transition-colors">PIN</button>
+                        <button onClick={() => handleToggleStatus(t)} disabled={isPending} className={`text-xs transition-colors ${t.status === 'active' ? 'text-gray-400 hover:text-orange-500' : 'text-orange-500 hover:text-green-600'}`}>
+                          {t.status === 'active' ? 'Faolsizlashtirish' : 'Faollashtirish'}
+                        </button>
                         <button onClick={() => handleDelete(t.id)} className="text-xs text-gray-400 hover:text-red-600 transition-colors">O&apos;chirish</button>
                       </div>
                     </td>

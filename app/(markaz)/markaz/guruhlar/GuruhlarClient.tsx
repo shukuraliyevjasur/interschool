@@ -3,16 +3,19 @@ import { useState, useTransition } from 'react';
 import { createGroup, updateGroup, deleteGroup, moveStudentToGroup } from './actions';
 
 type Group = {
-  id: number; name: string; teacher_name: string | null;
+  id: number; name: string; teacher_name: string | null; teacher_id: number | null;
   schedule_days: string[]; schedule_time: string | null;
   max_students: number; status: string;
 };
 type Student = { id: number; full_name: string; group_id: number | null };
+type Teacher = { id: number; full_name: string };
+type Program = { id: number; name_uz: string };
 
 export function GuruhlarClient({
-  groups, students, studentCounts,
+  groups, students, studentCounts, teachers, programs,
 }: {
   groups: Group[]; students: Student[]; studentCounts: Record<number, number>;
+  teachers: Teacher[]; programs: Program[];
 }) {
   const [showAdd, setShowAdd] = useState(false);
   const [editGroup, setEditGroup] = useState<Group | null>(null);
@@ -109,10 +112,23 @@ export function GuruhlarClient({
         <Modal title="Yangi guruh" onClose={() => setShowAdd(false)}>
           <form onSubmit={handleCreate} className="space-y-4">
             <Field label="Guruh nomi" name="name" required />
-            <Field label="Dars kunlari (vergul bilan)" name="schedule_days" placeholder="Du, Chor, Ju" />
-            <Field label="Dars vaqti" name="schedule_time" placeholder="14:00" />
+            <div>
+              <label className="block text-xs font-medium text-gray-500 mb-1">Yo&apos;nalish</label>
+              <select name="program_id" required className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-[#F5B800]">
+                <option value="">— tanlang —</option>
+                {programs.map(p => <option key={p.id} value={p.id}>{p.name_uz}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-500 mb-1">O&apos;qituvchi</label>
+              <select name="teacher_id" className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-[#F5B800]">
+                <option value="">Tayinlanmagan</option>
+                {teachers.map(t => <option key={t.id} value={t.id}>{t.full_name}</option>)}
+              </select>
+            </div>
+            <Field label="Dars kunlari (vergul bilan)" name="schedule_days" placeholder="Du, Cho, Ju" />
+            <Field label="Dars vaqti" name="schedule_time" placeholder="14:00–15:30" />
             <Field label="Max o'quvchilar" name="max_students" type="number" defaultValue="15" />
-            <p className="text-xs text-gray-400">O&apos;qituvchini tayinlash uchun O&apos;qituvchilar sahifasidan foydalaning.</p>
             <SubmitBtn pending={isPending} label="Saqlash" />
           </form>
         </Modal>
@@ -122,9 +138,12 @@ export function GuruhlarClient({
         <Modal title="Guruhni tahrirlash" onClose={() => setEditGroup(null)}>
           <form onSubmit={handleUpdate} className="space-y-4">
             <Field label="Guruh nomi" name="name" defaultValue={editGroup.name} required />
-            <div className="bg-gray-50 rounded-xl p-3">
-              <p className="text-[10px] text-gray-400 uppercase tracking-widest mb-1">O&apos;qituvchi</p>
-              <p className="text-sm font-medium text-[#1A1A1A]">{editGroup.teacher_name ?? "Tayinlanmagan"}</p>
+            <div>
+              <label className="block text-xs font-medium text-gray-500 mb-1">O&apos;qituvchi</label>
+              <select name="teacher_id" defaultValue={editGroup.teacher_id ?? ''} className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-[#F5B800]">
+                <option value="">Tayinlanmagan</option>
+                {teachers.map(t => <option key={t.id} value={t.id}>{t.full_name}</option>)}
+              </select>
             </div>
             <Field label="Dars kunlari" name="schedule_days" defaultValue={editGroup.schedule_days?.join(', ')} />
             <Field label="Dars vaqti" name="schedule_time" defaultValue={editGroup.schedule_time ?? ''} />
