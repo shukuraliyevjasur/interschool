@@ -63,7 +63,7 @@ export default async function UstozDavomatPage({
   }
 
   return (
-    <div className="p-8">
+    <div className="p-4 md:p-8">
       <div className="mb-8">
         <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-1">INTER SCHOOL</p>
         <h1 className="text-2xl font-bold text-[#1A1A1A]">Davomat belgilash</h1>
